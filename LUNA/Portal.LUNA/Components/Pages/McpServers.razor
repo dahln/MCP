@@ -1,0 +1,145 @@
+@page "/mcp-servers"
+@using Microsoft.AspNetCore.Authorization
+@using Portal.LUNA.Models
+@using Portal.LUNA.Services
+@attribute [Authorize]
+@inject IMcpServerService McpServerService
+@inject IUserApiKeyService UserApiKeyService
+@inject IAdminSettingService AdminSettingService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IJSRuntime JS
+
+<PageTitle>MCP Servers</PageTitle>
+
+<h1>MCP Servers</h1>
+
+@if (servers == null)
+{
+    <p>Loading...</p>
+}
+else if (!servers.Any())
+{
+    <p>No MCP servers are available yet.</p>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        @foreach (var server in servers)
+        {
+            var myKey = myKeys.FirstOrDefault(k => k.McpServerId == server.Id && k.RevokedAt == null);
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">@server.Name</h5>
+                        <p class="card-text text-muted">@server.Description</p>
+                        @if (myKey != null)
+                        {
+                            <div class="mb-2">
+                                <span class="badge bg-success">API Key Active</span>
+                            </div>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control form-control-sm" readonly value="@myKey.ApiKey" />
+                                <button class="btn btn-outline-secondary btn-sm" @onclick="() => CopyText(myKey.ApiKey)">Copy Key</button>
+                            </div>
+                            @if (!string.IsNullOrEmpty(mcpUrl))
+                            {
+                                var serverUrl = $"{mcpUrl}/mcp/{server.Name}";
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control form-control-sm" readonly value="@serverUrl" />
+                                    <button class="btn btn-outline-secondary btn-sm" @onclick="() => CopyText(serverUrl)">Copy URL</button>
+                                </div>
+                            }
+                            <div class="mb-2">
+                                <small class="text-muted">Settings:</small>
+                                @foreach (var setting in myKey.Settings)
+                                {
+                                    <div class="input-group input-group-sm mb-1">
+                                        <span class="input-group-text">@setting.Key</span>
+                                        <input type="text" class="form-control" value="@setting.Value"
+                                               @onchange="e => UpdateSetting(myKey.Id, setting.Key, e.Value?.ToString() ?? string.Empty)" />
+                                        <button class="btn btn-outline-danger" @onclick="() => DeleteSetting(setting.Id, myKey.Id)">✕</button>
+                                    </div>
+                                }
+                                <div class="input-group input-group-sm mt-1">
+                                    <input type="text" class="form-control" placeholder="Key" @bind="newSettingKey" />
+                                    <input type="text" class="form-control" placeholder="Value" @bind="newSettingValue" />
+                                    <button class="btn btn-outline-primary" @onclick="() => AddSetting(myKey.Id)">Add</button>
+                                </div>
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger" @onclick="() => RevokeKey(myKey.Id)">Revoke Key</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-sm btn-primary" @onclick="() => GenerateKey(server.Id)">Get API Key</button>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-info mt-3">@message</div>
+}
+
+@code {
+    private List<AvailableMcpServerDto>? servers;
+    private List<UserApiKeyDto> myKeys = new();
+    private string mcpUrl = string.Empty;
+    private string message = string.Empty;
+    private string newSettingKey = string.Empty;
+    private string newSettingValue = string.Empty;
+    private string currentUserId = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        currentUserId = authState.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
+        servers = await McpServerService.GetEnabledAsync();
+        myKeys = await UserApiKeyService.GetByUserAsync(currentUserId);
+        mcpUrl = await AdminSettingService.GetValueAsync("ROOT_DOMAIN") ?? string.Empty;
+    }
+
+    private async Task GenerateKey(string mcpServerId)
+    {
+        var key = await UserApiKeyService.GenerateAsync(currentUserId, mcpServerId);
+        myKeys.Add(key);
+        message = "API key generated!";
+    }
+
+    private async Task RevokeKey(string keyId)
+    {
+        await UserApiKeyService.RevokeAsync(keyId, currentUserId);
+        myKeys = await UserApiKeyService.GetByUserAsync(currentUserId);
+        message = "API key revoked.";
+    }
+
+    private async Task AddSetting(string keyId)
+    {
+        if (string.IsNullOrWhiteSpace(newSettingKey)) return;
+        await UserApiKeyService.UpsertSettingAsync(keyId, currentUserId, newSettingKey, newSettingValue);
+        myKeys = await UserApiKeyService.GetByUserAsync(currentUserId);
+        newSettingKey = string.Empty;
+        newSettingValue = string.Empty;
+    }
+
+    private async Task UpdateSetting(string keyId, string key, string value)
+    {
+        await UserApiKeyService.UpsertSettingAsync(keyId, currentUserId, key, value);
+        myKeys = await UserApiKeyService.GetByUserAsync(currentUserId);
+    }
+
+    private async Task DeleteSetting(string settingId, string keyId)
+    {
+        await UserApiKeyService.DeleteSettingAsync(settingId, currentUserId);
+        myKeys = await UserApiKeyService.GetByUserAsync(currentUserId);
+    }
+
+    private async Task CopyText(string text)
+    {
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", text);
+        message = "Copied to clipboard!";
+    }
+}

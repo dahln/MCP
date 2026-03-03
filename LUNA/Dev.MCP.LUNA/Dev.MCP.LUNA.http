@@ -1,0 +1,6 @@
+@Dev.MCP.LUNA_HostAddress = http://localhost:5228
+
+GET {{Dev.MCP.LUNA_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
