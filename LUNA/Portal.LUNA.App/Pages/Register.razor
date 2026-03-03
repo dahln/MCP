@@ -1,0 +1,57 @@
+@page "/register"
+@inject ApiClient ApiClient
+@inject NavigationManager NavManager
+
+<PageTitle>Register - LUNA</PageTitle>
+
+<div class="row justify-content-center">
+    <div class="col-md-4">
+        <div class="card mt-5">
+            <div class="card-header"><h4>Register</h4></div>
+            <div class="card-body">
+                @if (!string.IsNullOrEmpty(error))
+                {
+                    <div class="alert alert-danger">@error</div>
+                }
+                @if (success)
+                {
+                    <div class="alert alert-success">Registered! <a href="/login">Login here</a>.</div>
+                }
+                else
+                {
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input class="form-control" type="email" @bind="email" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input class="form-control" type="password" @bind="password" />
+                    </div>
+                    <button class="btn btn-primary w-100" @onclick="DoRegister" disabled="@loading">
+                        @(loading ? "Registering..." : "Register")
+                    </button>
+                    <div class="mt-3 text-center">
+                        <a href="/login">Already have an account?</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string email = "";
+    private string password = "";
+    private string? error;
+    private bool loading;
+    private bool success;
+
+    private async Task DoRegister()
+    {
+        loading = true;
+        error = null;
+        success = await ApiClient.RegisterAsync(email, password);
+        if (!success) error = "Registration failed. Email may already be in use.";
+        loading = false;
+    }
+}

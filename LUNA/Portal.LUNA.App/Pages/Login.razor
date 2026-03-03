@@ -1,0 +1,59 @@
+@page "/login"
+@inject ApiClient ApiClient
+@inject NavigationManager NavManager
+
+<PageTitle>Login - LUNA</PageTitle>
+
+<div class="row justify-content-center">
+    <div class="col-md-4">
+        <div class="card mt-5">
+            <div class="card-header"><h4>Login</h4></div>
+            <div class="card-body">
+                @if (!string.IsNullOrEmpty(error))
+                {
+                    <div class="alert alert-danger">@error</div>
+                }
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input class="form-control" type="email" @bind="email" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input class="form-control" type="password" @bind="password" @onkeypress="HandleKeyPress" />
+                </div>
+                <button class="btn btn-primary w-100" @onclick="DoLogin" disabled="@loading">
+                    @(loading ? "Logging in..." : "Login")
+                </button>
+                <div class="mt-3 text-center">
+                    <a href="/register">Create an account</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string email = "";
+    private string password = "";
+    private string? error;
+    private bool loading;
+
+    private async Task DoLogin()
+    {
+        loading = true;
+        error = null;
+        var result = await ApiClient.LoginAsync(email, password);
+        if (result.Success)
+            NavManager.NavigateTo("/", forceLoad: true);
+        else
+        {
+            error = "Invalid email or password.";
+            loading = false;
+        }
+    }
+
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") await DoLogin();
+    }
+}

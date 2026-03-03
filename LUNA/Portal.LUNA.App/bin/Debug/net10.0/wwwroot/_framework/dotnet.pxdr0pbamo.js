@@ -5,7 +5,7 @@ var e=!1;const t=async()=>WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,
   "mainAssemblyName": "Portal.LUNA.App",
   "applicationEnvironment": "Development",
   "resources": {
-    "hash": "sha256-4frH6YOP9Bze7J7DNxEFW5bkUOnus9JGB4zLKi+wmqQ=",
+    "hash": "sha256-GTuFRIZYZHlTklUZriIcTaI0UHQOIFRhoDGwGfuYSN4=",
     "jsModuleNative": [
       {
         "name": "dotnet.native.87vtjjdetb.js"
@@ -59,6 +59,12 @@ var e=!1;const t=async()=>WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,
     ],
     "assembly": [
       {
+        "virtualPath": "Blazored.LocalStorage.wasm",
+        "name": "Blazored.LocalStorage.rtee5ama0k.wasm",
+        "integrity": "sha256-cVAxLiUb8qzzOCkXKHPqqYyCUTBYWMeHuxWMBiceDLc=",
+        "cache": "force-cache"
+      },
+      {
         "virtualPath": "Microsoft.AspNetCore.Authorization.wasm",
         "name": "Microsoft.AspNetCore.Authorization.1l4onz0xjo.wasm",
         "integrity": "sha256-NVDsBhNtjt4lkD/U8hvDWbrk4zD10WGLJ49QfG9ghJ4=",
@@ -68,6 +74,12 @@ var e=!1;const t=async()=>WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,
         "virtualPath": "Microsoft.AspNetCore.Components.wasm",
         "name": "Microsoft.AspNetCore.Components.nyb7ae3bsc.wasm",
         "integrity": "sha256-sZUvhuzUokaB8IWG+sRnUEaC8XnfNmnd1WYyKMWxoGM=",
+        "cache": "force-cache"
+      },
+      {
+        "virtualPath": "Microsoft.AspNetCore.Components.Authorization.wasm",
+        "name": "Microsoft.AspNetCore.Components.Authorization.br78doeg3e.wasm",
+        "integrity": "sha256-R0Z0XEHfKYQj+FS+sgQBPObvFnrcFH9Emvy1GShDvCE=",
         "cache": "force-cache"
       },
       {
@@ -86,6 +98,12 @@ var e=!1;const t=async()=>WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,
         "virtualPath": "Microsoft.AspNetCore.Components.WebAssembly.wasm",
         "name": "Microsoft.AspNetCore.Components.WebAssembly.wt1enrrig6.wasm",
         "integrity": "sha256-xPOloKszfUwevGv44AQ0L1EsdyyAYiHiTeDLLarqvG4=",
+        "cache": "force-cache"
+      },
+      {
+        "virtualPath": "Microsoft.AspNetCore.Components.WebAssembly.Authentication.wasm",
+        "name": "Microsoft.AspNetCore.Components.WebAssembly.Authentication.n8hrs9pgrm.wasm",
+        "integrity": "sha256-B4Aw0KW3NylYql6O5v1JpJzZ+4iR3dCJ0GnPzq6HEzg=",
         "cache": "force-cache"
       },
       {
@@ -1242,28 +1260,28 @@ var e=!1;const t=async()=>WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,
       },
       {
         "virtualPath": "Portal.LUNA.Dto.wasm",
-        "name": "Portal.LUNA.Dto.cuposdh86n.wasm",
-        "integrity": "sha256-LGdy/ndTihuOmYsoSi3d4tMiTvDgg+yA5b6pop5dL/M=",
+        "name": "Portal.LUNA.Dto.hlru6gcjny.wasm",
+        "integrity": "sha256-NW0sxE46T+xwpX/hQ/6nROvcaHNlGEW9w/EeNT3UJUM=",
         "cache": "force-cache"
       },
       {
         "virtualPath": "Portal.LUNA.App.wasm",
-        "name": "Portal.LUNA.App.a1tgsz50yt.wasm",
-        "integrity": "sha256-/k6faaPCS50rcrjC/2m3c51e7UniF9O2SDC732lF8SE=",
+        "name": "Portal.LUNA.App.dwz431lgl1.wasm",
+        "integrity": "sha256-vWVk5cWeqXQUi/ZRbxzVvsyEXhrINhVpR57+mgFD2YY=",
         "cache": "force-cache"
       }
     ],
     "pdb": [
       {
         "virtualPath": "Portal.LUNA.Dto.pdb",
-        "name": "Portal.LUNA.Dto.n33ufsij5y.pdb",
-        "integrity": "sha256-M6oafZu8Cmg3RkvEYh2krGjuB4zNAH0SxeFh6+IjuVg=",
+        "name": "Portal.LUNA.Dto.pgjqqfr1nq.pdb",
+        "integrity": "sha256-9zTPYDe2J+PdS2vkqz88+z79Yes992oE3X/+2d83xkc=",
         "cache": "force-cache"
       },
       {
         "virtualPath": "Portal.LUNA.App.pdb",
-        "name": "Portal.LUNA.App.yc0dswvo2a.pdb",
-        "integrity": "sha256-7rAhbEWhtsKflcEjMEnrNAdU473R2MwvHCgvALjTqF4=",
+        "name": "Portal.LUNA.App.wz4n3kc70c.pdb",
+        "integrity": "sha256-9FOV449vDPCtUbHsOsJr4cZl7qImYHTEIXq06ne+JRQ=",
         "cache": "force-cache"
       }
     ],

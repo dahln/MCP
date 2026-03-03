@@ -1,0 +1,209 @@
+@page "/admin"
+@inject ApiClient ApiClient
+@inject NavigationManager NavManager
+
+<PageTitle>Admin - LUNA</PageTitle>
+
+@if (!isAdmin)
+{
+    <div class="alert alert-danger">Access denied.</div>
+}
+else
+{
+    <h2>Admin Panel</h2>
+    
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <button class="nav-link @(activeTab == "servers" ? "active" : "")" @onclick='() => SetTab("servers")'>MCP Servers</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link @(activeTab == "containers" ? "active" : "")" @onclick='() => SetTab("containers")'>Containers</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link @(activeTab == "settings" ? "active" : "")" @onclick='() => SetTab("settings")'>Settings</button>
+        </li>
+    </ul>
+
+    @if (activeTab == "servers")
+    {
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4>Available MCP Servers</h4>
+            <button class="btn btn-primary btn-sm" @onclick="ShowCreateForm">+ Add Server</button>
+        </div>
+        @if (showForm)
+        {
+            <div class="card mb-3 p-3">
+                <div class="row g-2">
+                    <div class="col-md-3"><input class="form-control" placeholder="Name" @bind="formName" /></div>
+                    <div class="col-md-3"><input class="form-control" placeholder="Docker Image" @bind="formImage" /></div>
+                    <div class="col-md-3"><input class="form-control" placeholder="Description" @bind="formDesc" /></div>
+                    <div class="col-md-1 d-flex align-items-center">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" @bind="formEnabled" id="enabledCheck" />
+                            <label class="form-check-label" for="enabledCheck">Enabled</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-success btn-sm me-1" @onclick="SaveServer">Save</button>
+                        <button class="btn btn-secondary btn-sm" @onclick="CancelForm">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        }
+        <table class="table table-striped">
+            <thead><tr><th>Name</th><th>Image</th><th>Description</th><th>Enabled</th><th>Actions</th></tr></thead>
+            <tbody>
+                @foreach (var s in mcpServers)
+                {
+                    <tr>
+                        <td>@s.Name</td>
+                        <td><code>@s.DockerImage</code></td>
+                        <td>@s.Description</td>
+                        <td>@(s.IsEnabled ? "✅" : "❌")</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm me-1" @onclick="() => EditServer(s)">Edit</button>
+                            <button class="btn btn-danger btn-sm" @onclick="() => DeleteServer(s.Id)">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    @if (activeTab == "containers")
+    {
+        <h4>Containers</h4>
+        <button class="btn btn-secondary btn-sm mb-3" @onclick="LoadContainers">Refresh</button>
+        <table class="table table-striped">
+            <thead><tr><th>Container ID</th><th>Image</th><th>Status</th><th>MCP Server</th><th>Sandbox ID</th><th>Managed</th><th>Actions</th></tr></thead>
+            <tbody>
+                @foreach (var c in containers)
+                {
+                    <tr>
+                        <td><code>@c.ContainerId[..Math.Min(12, c.ContainerId.Length)]</code></td>
+                        <td>@c.Image</td>
+                        <td>@c.Status</td>
+                        <td>@(c.McpServerName ?? "-")</td>
+                        <td>@(c.SandboxId ?? "-")</td>
+                        <td>@(c.ManagedByPortal ? "✅" : "❌")</td>
+                        <td>
+                            @if (c.ManagedByPortal)
+                            {
+                                <button class="btn btn-success btn-sm me-1" @onclick="() => StartContainer(c.ContainerId)">Start</button>
+                                <button class="btn btn-warning btn-sm me-1" @onclick="() => StopContainer(c.ContainerId)">Stop</button>
+                                <button class="btn btn-danger btn-sm" @onclick="() => DeleteContainer(c.ContainerId)">Delete</button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    @if (activeTab == "settings")
+    {
+        <h4>Admin Settings</h4>
+        <div class="card p-3" style="max-width:500px">
+            <div class="mb-3">
+                <label class="form-label"><strong>Root Domain</strong></label>
+                <div class="d-flex gap-2">
+                    <input class="form-control" placeholder="e.g. myhost.example.com" @bind="rootDomain" />
+                    <button class="btn btn-primary" @onclick="SaveRootDomain">Save</button>
+                </div>
+                <small class="text-muted">Used to construct MCP server URLs: http://{RootDomain}/mcp/{ServerName}</small>
+            </div>
+            @if (settingSaved)
+            {
+                <div class="alert alert-success py-1">Saved!</div>
+            }
+        </div>
+    }
+}
+
+@code {
+    private bool isAdmin;
+    private string activeTab = "servers";
+    private List<AvailableMcpServerDto> mcpServers = new();
+    private List<ContainerInfoDto> containers = new();
+    private string? rootDomain;
+    private bool settingSaved;
+
+    // Form state
+    private bool showForm;
+    private string? editingId;
+    private string formName = "";
+    private string formImage = "";
+    private string formDesc = "";
+    private bool formEnabled = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isAdmin = await ApiClient.IsAdminAsync();
+        if (!isAdmin) return;
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        mcpServers = await ApiClient.GetAllMcpServersAsync();
+        var settings = await ApiClient.GetAdminSettingsAsync();
+        rootDomain = settings.FirstOrDefault(s => s.Key == "RootDomain")?.Value;
+    }
+
+    private async Task LoadContainers()
+    {
+        containers = await ApiClient.GetContainersAsync();
+    }
+
+    private void SetTab(string tab)
+    {
+        activeTab = tab;
+        if (tab == "containers") _ = LoadContainers();
+    }
+
+    private void ShowCreateForm()
+    {
+        editingId = null;
+        formName = ""; formImage = ""; formDesc = ""; formEnabled = true;
+        showForm = true;
+    }
+
+    private void EditServer(AvailableMcpServerDto s)
+    {
+        editingId = s.Id;
+        formName = s.Name; formImage = s.DockerImage; formDesc = s.Description ?? ""; formEnabled = s.IsEnabled;
+        showForm = true;
+    }
+
+    private void CancelForm() => showForm = false;
+
+    private async Task SaveServer()
+    {
+        var dto = new AvailableMcpServerDto { Name = formName, DockerImage = formImage, Description = formDesc, IsEnabled = formEnabled };
+        if (editingId == null)
+            await ApiClient.CreateMcpServerAsync(dto);
+        else
+            await ApiClient.UpdateMcpServerAsync(editingId, dto);
+        showForm = false;
+        await LoadData();
+    }
+
+    private async Task DeleteServer(string id)
+    {
+        await ApiClient.DeleteMcpServerAsync(id);
+        await LoadData();
+    }
+
+    private async Task StartContainer(string id) { await ApiClient.StartContainerAsync(id); await LoadContainers(); }
+    private async Task StopContainer(string id) { await ApiClient.StopContainerAsync(id); await LoadContainers(); }
+    private async Task DeleteContainer(string id) { await ApiClient.DeleteContainerAsync(id); await LoadContainers(); }
+
+    private async Task SaveRootDomain()
+    {
+        if (string.IsNullOrWhiteSpace(rootDomain)) return;
+        await ApiClient.SetAdminSettingAsync("RootDomain", rootDomain);
+        settingSaved = true;
+        await Task.Delay(2000);
+        settingSaved = false;
+    }
+}
