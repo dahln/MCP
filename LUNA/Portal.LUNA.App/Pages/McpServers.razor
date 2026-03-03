@@ -2,6 +2,7 @@
 @page "/servers"
 @inject Portal.LUNA.App.Services.API API
 @inject IModalService _modalService
+@inject NavigationManager Navigation
 
 <PageTitle>MCP Servers - LUNA</PageTitle>
 
@@ -57,7 +58,7 @@ else
         var result = await API.PostAsync<UserApiKey>("api/v1/apikeys", request);
         if (result != null)
         {
-            // Navigate to the my keys page
+            Navigation.NavigateTo("/my-keys");
         }
     }
 }
