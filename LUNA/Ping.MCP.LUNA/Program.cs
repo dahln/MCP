@@ -1,41 +1,85 @@
+using ModelContextProtocol.Server;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Net.Http.Headers;
+using System.Text.Json;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddHttpClient("portal", client =>
+{
+    var portalUrl = builder.Configuration["PortalUrl"] ?? "http://localhost:5000";
+    client.BaseAddress = new Uri(portalUrl);
+});
+
+builder.Services.AddMcpServer()
+    .WithHttpTransport()
+    .WithTools<PingTools>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+// API key middleware
+app.Use(async (context, next) =>
 {
-    app.MapOpenApi();
-}
+    if (!context.Request.Headers.TryGetValue("Authorization", out var authHeader))
+    {
+        context.Response.StatusCode = 401;
+        await context.Response.WriteAsync("Missing Authorization header.");
+        return;
+    }
+    var token = authHeader.ToString();
+    if (token.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        token = token["Bearer ".Length..].Trim();
 
-app.UseHttpsRedirection();
+    var factory = context.RequestServices.GetRequiredService<IHttpClientFactory>();
+    var portalClient = factory.CreateClient("portal");
+    var response = await portalClient.GetAsync($"/api/api-keys/validate?apiKey={Uri.EscapeDataString(token)}");
+    if (!response.IsSuccessStatusCode)
+    {
+        context.Response.StatusCode = 401;
+        await context.Response.WriteAsync("Invalid API key.");
+        return;
+    }
+    await next();
+});
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+app.MapMcp("/mcp/ping");
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+[McpServerToolType]
+public class PingTools
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    [McpServerTool, Description("Ping a target host or URL. Returns ping output, success status, and exit code.")]
+    public static async Task<string> Ping(
+        [Description("The target host or IP to ping (e.g. '8.8.8.8' or 'example.com')")] string target)
+    {
+        if (string.IsNullOrWhiteSpace(target))
+            return JsonSerializer.Serialize(new { success = false, output = "Target is required.", exitCode = -1 });
+
+        var processInfo = new ProcessStartInfo
+        {
+            FileName = "ping",
+            Arguments = OperatingSystem.IsLinux() ? $"-c 4 {target}" : $"-n 4 {target}",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        using var process = Process.Start(processInfo);
+        if (process == null)
+            return JsonSerializer.Serialize(new { success = false, output = "Failed to start ping.", exitCode = -1 });
+
+        var stdout = await process.StandardOutput.ReadToEndAsync();
+        var stderr = await process.StandardError.ReadToEndAsync();
+        await process.WaitForExitAsync();
+
+        return JsonSerializer.Serialize(new
+        {
+            success = process.ExitCode == 0,
+            output = stdout + stderr,
+            exitCode = process.ExitCode
+        });
+    }
 }
