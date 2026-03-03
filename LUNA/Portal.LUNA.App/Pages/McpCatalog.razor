@@ -1,0 +1,165 @@
+@attribute [Authorize(Roles = "Administrator")]
+@page "/catalog"
+@inject Portal.LUNA.App.Services.API API
+@inject IModalService _modalService
+
+<PageTitle>MCP Server Catalog - LUNA</PageTitle>
+
+<div class="row mt-3">
+    <div class="col-md-12">
+        <h3>Available MCP Servers</h3>
+        <hr />
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <button class="btn btn-primary" @onclick="ShowAddForm">
+            <i class="bi bi-plus-circle me-2"></i>Add MCP Server
+        </button>
+    </div>
+</div>
+
+@if (_showForm)
+{
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">@(_editingServer?.Id == null ? "Add New MCP Server" : "Edit MCP Server")</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-2">
+                        <label class="form-label">Name *</label>
+                        <input type="text" class="form-control" @bind="_formServer.Name" placeholder="e.g. Ping Server" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Docker Image *</label>
+                        <input type="text" class="form-control" @bind="_formServer.DockerImage" placeholder="e.g. ghcr.io/dahln/ping-mcp-luna:latest" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Description</label>
+                        <input type="text" class="form-control" @bind="_formServer.Description" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">External Port</label>
+                        <input type="number" class="form-control" @bind="_formServer.ExternalPort" />
+                    </div>
+                    <button class="btn btn-primary me-2" @onclick="SaveServer">Save</button>
+                    <button class="btn btn-secondary" @onclick="CancelForm">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Docker Image</th>
+                <th>Description</th>
+                <th>Port</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var server in _servers)
+            {
+                <tr>
+                    <td>@server.Name</td>
+                    <td><code>@server.DockerImage</code></td>
+                    <td>@server.Description</td>
+                    <td>@server.ExternalPort</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => EditServer(server)">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteServer(server)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    private List<AvailableMcpServer> _servers = new();
+    private bool _showForm = false;
+    private AvailableMcpServer _formServer = new();
+    private AvailableMcpServer? _editingServer;
+
+    protected override async Task OnInitializedAsync() => await LoadServers();
+
+    private async Task LoadServers()
+    {
+        var result = await API.GetAsync<List<AvailableMcpServer>>("api/v1/mcp/catalog");
+        _servers = result ?? new();
+    }
+
+    private void ShowAddForm()
+    {
+        _formServer = new AvailableMcpServer { ExternalPort = 8080 };
+        _editingServer = null;
+        _showForm = true;
+    }
+
+    private void EditServer(AvailableMcpServer server)
+    {
+        _editingServer = server;
+        _formServer = new AvailableMcpServer
+        {
+            Id = server.Id,
+            Name = server.Name,
+            DockerImage = server.DockerImage,
+            Description = server.Description,
+            ExternalPort = server.ExternalPort
+        };
+        _showForm = true;
+    }
+
+    private async Task SaveServer()
+    {
+        if (string.IsNullOrEmpty(_formServer.Name) || string.IsNullOrEmpty(_formServer.DockerImage)) return;
+
+        if (string.IsNullOrEmpty(_formServer.Id))
+        {
+            var result = await API.PostAsync<AvailableMcpServer>("api/v1/mcp/catalog", _formServer);
+            if (result != null) _servers.Add(result);
+        }
+        else
+        {
+            if (await API.PutAsync($"api/v1/mcp/catalog/{_formServer.Id}", _formServer))
+            {
+                var existing = _servers.FirstOrDefault(s => s.Id == _formServer.Id);
+                if (existing != null)
+                {
+                    existing.Name = _formServer.Name;
+                    existing.DockerImage = _formServer.DockerImage;
+                    existing.Description = _formServer.Description;
+                    existing.ExternalPort = _formServer.ExternalPort;
+                }
+            }
+        }
+        CancelForm();
+    }
+
+    private async Task DeleteServer(AvailableMcpServer server)
+    {
+        var modal = _modalService.Show<ConfirmDialog>($"Delete '{server.Name}'?");
+        var result = await modal.Result;
+        if (!result.Cancelled)
+        {
+            if (await API.DeleteAsync($"api/v1/mcp/catalog/{server.Id}"))
+                _servers.Remove(server);
+        }
+    }
+
+    private void CancelForm()
+    {
+        _showForm = false;
+        _editingServer = null;
+        _formServer = new();
+    }
+}

@@ -1,0 +1,182 @@
+@attribute [Authorize(Roles = "Administrator")]
+@page "/containers"
+@inject Portal.LUNA.App.Services.API API
+@inject IModalService _modalService
+@inject Blazored.Toast.Services.IToastService _toastService
+
+<PageTitle>Container Management - LUNA</PageTitle>
+
+<div class="row mt-3">
+    <div class="col-md-12">
+        <h3>Container Management</h3>
+        <hr />
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <button class="btn btn-primary me-2" @onclick="ShowStartForm">
+            <i class="bi bi-play-circle me-2"></i>Start Container
+        </button>
+        <button class="btn btn-outline-secondary" @onclick="LoadContainers">
+            <i class="bi bi-arrow-clockwise me-2"></i>Refresh
+        </button>
+    </div>
+</div>
+
+@if (_showStartForm)
+{
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Start New Container</h5>
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="mb-2">
+                        <label class="form-label">MCP Server</label>
+                        <select class="form-select" @bind="_newContainerServerId">
+                            <option value="">-- Select Server --</option>
+                            @foreach (var s in _availableServers)
+                            {
+                                <option value="@s.Id">@s.Name (@s.DockerImage)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Container Name</label>
+                        <input type="text" class="form-control" @bind="_newContainerName" placeholder="e.g. ping-mcp-1" />
+                    </div>
+                    <button class="btn btn-primary me-2" @onclick="StartContainer">Start</button>
+                    <button class="btn btn-secondary" @onclick="() => _showStartForm = false">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Server</th>
+                <th>Status</th>
+                <th>Port</th>
+                <th>Managed by LUNA</th>
+                <th>Created</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in _containers)
+            {
+                <tr>
+                    <td><code>@c.ContainerName</code></td>
+                    <td>@(c.ServerName ?? c.ServerId)</td>
+                    <td>
+                        @if (c.Status == "running")
+                        {
+                            <span class="badge bg-success">running</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">@c.Status</span>
+                        }
+                    </td>
+                    <td>@c.HostPort</td>
+                    <td>
+                        @if (c.ManagedByLuna)
+                        {
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                        }
+                        else
+                        {
+                            <i class="bi bi-dash text-muted"></i>
+                        }
+                    </td>
+                    <td>@c.CreatedAt.ToString("g")</td>
+                    <td>
+                        @if (c.ManagedByLuna)
+                        {
+                            @if (c.Status == "running")
+                            {
+                                <button class="btn btn-sm btn-warning me-1" @onclick="() => StopContainer(c)">
+                                    <i class="bi bi-stop-circle"></i>
+                                </button>
+                            }
+                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteContainer(c)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    private List<McpContainer> _containers = new();
+    private List<AvailableMcpServer> _availableServers = new();
+    private bool _showStartForm = false;
+    private string _newContainerServerId = string.Empty;
+    private string _newContainerName = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.WhenAll(LoadContainers(), LoadAvailableServers());
+    }
+
+    private async Task LoadContainers()
+    {
+        var result = await API.GetAsync<List<McpContainer>>("api/v1/mcp/containers");
+        _containers = result ?? new();
+    }
+
+    private async Task LoadAvailableServers()
+    {
+        var result = await API.GetAsync<List<AvailableMcpServer>>("api/v1/mcp/catalog");
+        _availableServers = result ?? new();
+    }
+
+    private void ShowStartForm()
+    {
+        _showStartForm = true;
+        _newContainerServerId = string.Empty;
+        _newContainerName = string.Empty;
+    }
+
+    private async Task StartContainer()
+    {
+        if (string.IsNullOrEmpty(_newContainerServerId) || string.IsNullOrEmpty(_newContainerName))
+            return;
+
+        var request = new CreateContainerRequest
+        {
+            ServerId = _newContainerServerId,
+            ContainerName = _newContainerName
+        };
+        var result = await API.PostAsync<McpContainer>("api/v1/mcp/containers", request);
+        if (result != null)
+        {
+            _containers.Add(result);
+            _showStartForm = false;
+        }
+    }
+
+    private async Task StopContainer(McpContainer container)
+    {
+        await API.PostAsync($"api/v1/mcp/containers/{container.Id}/stop", new { });
+        await LoadContainers();
+    }
+
+    private async Task DeleteContainer(McpContainer container)
+    {
+        var modal = _modalService.Show<ConfirmDialog>($"Delete container '{container.ContainerName}'?");
+        var result = await modal.Result;
+        if (!result.Cancelled)
+        {
+            if (await API.DeleteAsync($"api/v1/mcp/containers/{container.Id}"))
+                _containers.Remove(container);
+        }
+    }
+}

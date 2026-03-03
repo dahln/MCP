@@ -1,0 +1,18 @@
+@inject IModalService Modal
+
+<div class="modal-body">
+    <p>@Title</p>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-danger" @onclick="Confirm">Yes, Confirm</button>
+    <button class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+</div>
+
+@code {
+    [CascadingParameter] public IModalService ModalService { get; set; } = default!;
+    [CascadingParameter] public BlazoredModalInstance ModalInstance { get; set; } = default!;
+    [Parameter] public string Title { get; set; } = "Are you sure?";
+
+    private async Task Confirm() => await ModalInstance.CloseAsync(ModalResult.Ok(true));
+    private async Task Cancel() => await ModalInstance.CancelAsync();
+}

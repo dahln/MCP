@@ -1,0 +1,57 @@
+@page "/login"
+@attribute [AllowAnonymous]
+@inject Portal.LUNA.App.Services.AuthenticationManager AuthManager
+@inject NavigationManager Navigation
+
+<PageTitle>Sign In - LUNA</PageTitle>
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-4">
+        <h3>Sign In</h3>
+        <hr />
+        @if (_show2FA == false)
+        {
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" @bind="_email" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-control" @bind="_password" @onkeypress="OnKeyPress" />
+            </div>
+            <button class="btn btn-primary" @onclick="DoLogin">Sign In</button>
+            <a href="register" class="btn btn-link">Register</a>
+            <a href="forgotpassword" class="btn btn-link">Forgot Password?</a>
+        }
+        else
+        {
+            <p>Enter your two-factor authentication code.</p>
+            <div class="mb-3">
+                <label class="form-label">2FA Code</label>
+                <input type="text" class="form-control" @bind="_twoFactorCode" />
+            </div>
+            <button class="btn btn-primary" @onclick="DoLogin">Verify</button>
+        }
+    </div>
+</div>
+
+@code {
+    private string _email = string.Empty;
+    private string _password = string.Empty;
+    private string? _twoFactorCode;
+    private bool _show2FA = false;
+
+    private async Task OnKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") await DoLogin();
+    }
+
+    private async Task DoLogin()
+    {
+        var result = await AuthManager.LoginAsync(_email, _password, _twoFactorCode, null);
+        if (result.Succeeded)
+            Navigation.NavigateTo("/");
+        else if (result.Prompt2FA)
+            _show2FA = true;
+    }
+}

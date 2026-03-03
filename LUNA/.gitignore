@@ -1,0 +1,26 @@
+# Build outputs
+bin/
+obj/
+*.user
+
+# SQLite databases
+*.db
+*.db-shm
+*.db-wal
+
+# .NET
+.vs/
+*.suo
+*.swp
+
+# User secrets
+appsettings.*.json
+!appsettings.Development.json
+
+# NuGet
+*.nupkg
+project.lock.json
+packages/
+
+# Blazor WASM publish
+wwwroot/_framework/

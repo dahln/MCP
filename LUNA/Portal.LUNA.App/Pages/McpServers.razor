@@ -1,0 +1,63 @@
+@attribute [Authorize]
+@page "/servers"
+@inject Portal.LUNA.App.Services.API API
+@inject IModalService _modalService
+
+<PageTitle>MCP Servers - LUNA</PageTitle>
+
+<div class="row mt-3">
+    <div class="col-md-12">
+        <h3>Available MCP Servers</h3>
+        <p class="text-muted">Select a server to generate an API key and use it with your AI client.</p>
+        <hr />
+    </div>
+</div>
+
+@if (_servers.Count == 0)
+{
+    <div class="alert alert-info">
+        No MCP servers are currently running. Check back later or contact your administrator.
+    </div>
+}
+else
+{
+    <div class="row">
+        @foreach (var server in _servers)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-server me-2 text-primary"></i>@server.Name</h5>
+                        @if (!string.IsNullOrEmpty(server.Description))
+                        {
+                            <p class="card-text text-muted">@server.Description</p>
+                        }
+                        <button class="btn btn-outline-primary btn-sm" @onclick="() => RequestApiKey(server)">
+                            <i class="bi bi-key me-1"></i>Get API Key
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<AvailableMcpServer> _servers = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await API.GetAsync<List<AvailableMcpServer>>("api/v1/mcp/servers");
+        _servers = result ?? new();
+    }
+
+    private async Task RequestApiKey(AvailableMcpServer server)
+    {
+        var request = new UserApiKey { ServerId = server.Id };
+        var result = await API.PostAsync<UserApiKey>("api/v1/apikeys", request);
+        if (result != null)
+        {
+            // Navigate to the my keys page
+        }
+    }
+}

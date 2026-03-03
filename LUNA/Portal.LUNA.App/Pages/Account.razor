@@ -1,0 +1,39 @@
+@attribute [Authorize]
+@page "/account"
+@inject Portal.LUNA.App.Services.API API
+@inject NavigationManager Navigation
+@inject IModalService _modalService
+
+<PageTitle>Account - LUNA</PageTitle>
+
+<div class="row mt-3">
+    <div class="col-md-12">
+        <h3>Account Settings</h3>
+        <hr />
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Delete Account</h5>
+                <p class="text-muted">Permanently delete your account and all associated data.</p>
+                <button class="btn btn-danger" @onclick="DeleteAccount">Delete My Account</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private async Task DeleteAccount()
+    {
+        var modal = _modalService.Show<ConfirmDialog>("Are you sure you want to permanently delete your account?");
+        var result = await modal.Result;
+        if (!result.Cancelled)
+        {
+            await API.DeleteAsync("api/v1/account");
+            Navigation.NavigateTo("/logout");
+        }
+    }
+}

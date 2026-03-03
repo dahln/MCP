@@ -1,0 +1,19 @@
+# Build outputs
+**/bin/
+**/obj/
+
+# SQLite databases
+*.db
+*.db-shm
+*.db-wal
+
+# .NET user files
+*.user
+.vs/
+
+# NuGet
+packages/
+*.nupkg
+
+# Environment secrets
+appsettings.Production.json

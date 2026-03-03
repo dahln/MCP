@@ -1,0 +1,62 @@
+@page "/register"
+@attribute [AllowAnonymous]
+@inject Portal.LUNA.App.Services.AuthenticationManager AuthManager
+@inject Portal.LUNA.App.Services.API API
+@inject NavigationManager Navigation
+
+<PageTitle>Register - LUNA</PageTitle>
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-4">
+        <h3>Register</h3>
+        <hr />
+        @if (_registrationEnabled)
+        {
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" @bind="_email" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-control" @bind="_password" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Confirm Password</label>
+                <input type="password" class="form-control" @bind="_confirmPassword" />
+            </div>
+            <button class="btn btn-primary" @onclick="DoRegister">Register</button>
+            <a href="login" class="btn btn-link">Already have an account?</a>
+        }
+        else
+        {
+            <div class="alert alert-warning">Registration is currently disabled.</div>
+        }
+    </div>
+</div>
+
+@code {
+    private string _email = string.Empty;
+    private string _password = string.Empty;
+    private string _confirmPassword = string.Empty;
+    private bool _registrationEnabled = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _registrationEnabled = await API.GetAsync<bool>("api/v1/account/operations/registration");
+    }
+
+    private async Task DoRegister()
+    {
+        if (_password != _confirmPassword)
+        {
+            // toast error
+            return;
+        }
+        var result = await AuthManager.RegisterAsync(_email, _password);
+        if (result.Succeeded)
+        {
+            await AuthManager.LoginAsync(_email, _password, null, null);
+            Navigation.NavigateTo("/");
+        }
+    }
+}
