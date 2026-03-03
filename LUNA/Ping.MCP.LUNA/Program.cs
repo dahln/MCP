@@ -64,12 +64,22 @@ public class PingTools
         var processInfo = new ProcessStartInfo
         {
             FileName = "ping",
-            Arguments = OperatingSystem.IsLinux() ? $"-c 4 {target}" : $"-n 4 {target}",
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
             CreateNoWindow = true
         };
+        if (OperatingSystem.IsLinux())
+        {
+            processInfo.ArgumentList.Add("-c");
+            processInfo.ArgumentList.Add("4");
+        }
+        else
+        {
+            processInfo.ArgumentList.Add("-n");
+            processInfo.ArgumentList.Add("4");
+        }
+        processInfo.ArgumentList.Add(target);
 
         using var process = Process.Start(processInfo);
         if (process == null)
