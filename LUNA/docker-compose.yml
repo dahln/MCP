@@ -1,0 +1,41 @@
+services:
+  portal-luna:
+    build:
+      context: .
+      dockerfile: Portal.LUNA.API/Dockerfile
+    ports:
+      - "5000:8080"
+    volumes:
+      - luna-data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - Jwt__Key=${JWT_KEY:-LUNA_DEFAULT_SECRET_KEY_CHANGE_IN_PRODUCTION_12345}
+    restart: unless-stopped
+
+  ping-mcp-luna:
+    build:
+      context: .
+      dockerfile: Ping.MCP.LUNA/Dockerfile
+    environment:
+      - PortalUrl=http://portal-luna:8080
+      - ASPNETCORE_ENVIRONMENT=Production
+    depends_on:
+      - portal-luna
+    restart: unless-stopped
+
+  dev-mcp-luna:
+    build:
+      context: .
+      dockerfile: Dev.MCP.LUNA/Dockerfile
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - PortalUrl=http://portal-luna:8080
+      - ASPNETCORE_ENVIRONMENT=Production
+    depends_on:
+      - portal-luna
+    restart: unless-stopped
+
+volumes:
+  luna-data:

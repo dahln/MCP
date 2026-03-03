@@ -1,0 +1,38 @@
+## .NET / C# artifacts
+**/bin/
+**/obj/
+*.user
+*.suo
+.vs/
+*.db
+*.db-shm
+*.db-wal
+
+## NuGet
+*.nupkg
+*.snupkg
+**/packages/
+!**/packages/build/
+
+## Build artifacts
+**/publish/
+**/TestResults/
+
+## Rider/JetBrains
+.idea/
+*.sln.iml
+
+## VS Code
+.vscode/
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/extensions.json
+
+## macOS
+.DS_Store
+
+## dotnet tools
+.dotnet/
+
+## Migration snapshots generated at runtime
+# (keep Migrations/ source files)
