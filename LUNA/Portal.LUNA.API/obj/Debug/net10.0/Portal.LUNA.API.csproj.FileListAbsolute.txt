@@ -165,3 +165,5 @@
 /home/runner/work/MCP/MCP/LUNA/Portal.LUNA.API/obj/Debug/net10.0/Portal.LUNA.API.pdb
 /home/runner/work/MCP/MCP/LUNA/Portal.LUNA.API/obj/Debug/net10.0/Portal.LUNA.API.genruntimeconfig.cache
 /home/runner/work/MCP/MCP/LUNA/Portal.LUNA.API/obj/Debug/net10.0/ref/Portal.LUNA.API.dll
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.API/bin/Debug/net10.0/Docker.DotNet.dll
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.API/bin/Debug/net10.0/Microsoft.AspNetCore.SpaServices.Extensions.dll

@@ -7,8 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Docker.DotNet" Version="3.125.15" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="10.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.3">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -19,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Portal.LUNA.Service\Portal.LUNA.Service.csproj" />
     <ProjectReference Include="..\Portal.LUNA.Dto\Portal.LUNA.Dto.csproj" />
+    <ProjectReference Include="..\Portal.LUNA.Database\Portal.LUNA.Database.csproj" />
   </ItemGroup>
 
 </Project>

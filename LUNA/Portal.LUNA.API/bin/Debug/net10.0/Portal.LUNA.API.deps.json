@@ -8,15 +8,29 @@
     ".NETCoreApp,Version=v10.0": {
       "Portal.LUNA.API/1.0.0": {
         "dependencies": {
+          "Docker.DotNet": "3.125.15",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "10.0.3",
           "Microsoft.AspNetCore.OpenApi": "10.0.2",
+          "Microsoft.AspNetCore.SpaServices.Extensions": "10.0.3",
           "Microsoft.EntityFrameworkCore.Tools": "10.0.3",
+          "Portal.LUNA.Database": "1.0.0",
           "Portal.LUNA.Dto": "1.0.0",
           "Portal.LUNA.Service": "1.0.0",
           "Swashbuckle.AspNetCore": "10.1.4"
         },
         "runtime": {
           "Portal.LUNA.API.dll": {}
+        }
+      },
+      "Docker.DotNet/3.125.15": {
+        "dependencies": {
+          "Newtonsoft.Json": "13.0.3"
+        },
+        "runtime": {
+          "lib/netstandard2.1/Docker.DotNet.dll": {
+            "assemblyVersion": "3.125.0.0",
+            "fileVersion": "3.125.15.1"
+          }
         }
       },
       "Humanizer.Core/2.14.1": {
@@ -57,6 +71,14 @@
           "lib/net10.0/Microsoft.AspNetCore.OpenApi.dll": {
             "assemblyVersion": "10.0.2.0",
             "fileVersion": "10.0.225.61305"
+          }
+        }
+      },
+      "Microsoft.AspNetCore.SpaServices.Extensions/10.0.3": {
+        "runtime": {
+          "lib/net10.0/Microsoft.AspNetCore.SpaServices.Extensions.dll": {
+            "assemblyVersion": "10.0.3.0",
+            "fileVersion": "10.0.326.7603"
           }
         }
       },
@@ -825,6 +847,7 @@
       },
       "Portal.LUNA.Service/1.0.0": {
         "dependencies": {
+          "Docker.DotNet": "3.125.15",
           "Portal.LUNA.Database": "1.0.0",
           "Portal.LUNA.Dto": "1.0.0"
         },
@@ -842,6 +865,13 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
+    },
+    "Docker.DotNet/3.125.15": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-XN8FKxVv8Mjmwu104/Hl9lM61pLY675s70gzwSj8KR5pwblo8HfWLcCuinh9kYsqujBkMH4HVRCEcRuU6al4BQ==",
+      "path": "docker.dotnet/3.125.15",
+      "hashPath": "docker.dotnet.3.125.15.nupkg.sha512"
     },
     "Humanizer.Core/2.14.1": {
       "type": "package",
@@ -870,6 +900,13 @@
       "sha512": "sha512-YuEjUNpsoZLs0I5ONt013Z+Udsz3f9sPUh1Xm59LN7+/Z8oVG/swCUYLBbANtfreiunWnoT2uk+5kst4s2jr3Q==",
       "path": "microsoft.aspnetcore.openapi/10.0.2",
       "hashPath": "microsoft.aspnetcore.openapi.10.0.2.nupkg.sha512"
+    },
+    "Microsoft.AspNetCore.SpaServices.Extensions/10.0.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-EpZVVaSbX8wjwJtfl13vas/fxnbm0mzkQCDukCWJ9P4WWpMwIezEYy+4w5qhQKmMguCuLPLUJljEfDHOexu2CQ==",
+      "path": "microsoft.aspnetcore.spaservices.extensions/10.0.3",
+      "hashPath": "microsoft.aspnetcore.spaservices.extensions.10.0.3.nupkg.sha512"
     },
     "Microsoft.Build.Framework/18.0.2": {
       "type": "package",
