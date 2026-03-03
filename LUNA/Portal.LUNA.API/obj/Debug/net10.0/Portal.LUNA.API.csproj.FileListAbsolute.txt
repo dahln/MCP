@@ -167,3 +167,13 @@
 /home/runner/work/MCP/MCP/LUNA/Portal.LUNA.API/obj/Debug/net10.0/ref/Portal.LUNA.API.dll
 /home/runner/work/MCP/MCP/LUNA/Portal.LUNA.API/bin/Debug/net10.0/Docker.DotNet.dll
 /home/runner/work/MCP/MCP/LUNA/Portal.LUNA.API/bin/Debug/net10.0/Microsoft.AspNetCore.SpaServices.Extensions.dll
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.API/bin/Debug/net10.0/bin/Debug/net10.0/appsettings.Development.json
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.API/bin/Debug/net10.0/bin/Debug/net10.0/appsettings.json
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.API/bin/Debug/net10.0/bin/Debug/net10.0/Portal.LUNA.API.deps.json
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.API/bin/Debug/net10.0/bin/Debug/net10.0/Portal.LUNA.API.runtimeconfig.json
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.API/bin/Debug/net10.0/bin/Debug/net10.0/Portal.LUNA.API.staticwebassets.endpoints.json
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.API/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/appsettings.Development.json
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.API/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/appsettings.json
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.API/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/Portal.LUNA.API.deps.json
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.API/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/Portal.LUNA.API.runtimeconfig.json
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.API/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/Portal.LUNA.API.staticwebassets.endpoints.json

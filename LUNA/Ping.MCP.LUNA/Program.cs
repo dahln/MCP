@@ -57,6 +57,10 @@ public class PingTools
         if (string.IsNullOrWhiteSpace(target))
             return JsonSerializer.Serialize(new { success = false, output = "Target is required.", exitCode = -1 });
 
+        // Validate target to prevent command injection: allow only hostname/IP characters
+        if (!System.Text.RegularExpressions.Regex.IsMatch(target, @"^[a-zA-Z0-9.\-]{1,253}$"))
+            return JsonSerializer.Serialize(new { success = false, output = "Invalid target. Only hostnames and IP addresses are allowed.", exitCode = -1 });
+
         var processInfo = new ProcessStartInfo
         {
             FileName = "ping",
