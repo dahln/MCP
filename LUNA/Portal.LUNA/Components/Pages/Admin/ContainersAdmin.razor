@@ -1,0 +1,57 @@
+@page "/admin/containers"
+@using Microsoft.AspNetCore.Authorization
+@using Portal.LUNA.Models
+@using Portal.LUNA.Services
+@attribute [Authorize(Policy = "AdminOnly")]
+@inject IContainerService ContainerService
+
+<PageTitle>Admin - Containers</PageTitle>
+
+<h1>Container Management</h1>
+<button class="btn btn-outline-secondary mb-3" @onclick="Refresh">Refresh</button>
+
+@if (containers == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <table class="table table-sm">
+        <thead>
+            <tr><th>Container ID</th><th>Image</th><th>Status</th><th>MCP Server</th><th>Sandbox ID</th><th>Managed</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var c in containers)
+            {
+                <tr>
+                    <td><code>@c.ContainerId[..Math.Min(12, c.ContainerId.Length)]</code></td>
+                    <td>@c.Image</td>
+                    <td>@c.Status</td>
+                    <td>@(c.McpServerName ?? "-")</td>
+                    <td>@(c.SandboxId ?? "-")</td>
+                    <td>@(c.ManagedByPortal ? "✅" : "—")</td>
+                    <td>
+                        @if (c.ManagedByPortal)
+                        {
+                            <button class="btn btn-sm btn-outline-success me-1" @onclick="() => Start(c.ContainerId)">Start</button>
+                            <button class="btn btn-sm btn-outline-warning me-1" @onclick="() => Stop(c.ContainerId)">Stop</button>
+                            <button class="btn btn-sm btn-outline-danger" @onclick="() => Delete(c.ContainerId)">Delete</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<ContainerInfoDto>? containers;
+
+    protected override async Task OnInitializedAsync() => await Refresh();
+
+    private async Task Refresh() => containers = await ContainerService.GetAllContainersAsync();
+
+    private async Task Start(string id) { await ContainerService.StartContainerAsync(id); await Refresh(); }
+    private async Task Stop(string id) { await ContainerService.StopContainerAsync(id); await Refresh(); }
+    private async Task Delete(string id) { await ContainerService.DeleteContainerAsync(id); await Refresh(); }
+}

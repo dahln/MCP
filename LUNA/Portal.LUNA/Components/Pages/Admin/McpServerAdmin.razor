@@ -1,0 +1,106 @@
+@page "/admin/mcp-servers"
+@using Microsoft.AspNetCore.Authorization
+@using Portal.LUNA.Models
+@using Portal.LUNA.Services
+@attribute [Authorize(Policy = "AdminOnly")]
+@inject IMcpServerService McpServerService
+
+<PageTitle>Admin - MCP Servers</PageTitle>
+
+<h1>MCP Server Management</h1>
+
+<button class="btn btn-primary mb-3" @onclick="ShowAddForm">Add MCP Server</button>
+
+@if (showForm)
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5>@(editId == null ? "Add" : "Edit") MCP Server</h5>
+            <div class="mb-2">
+                <label class="form-label">Name</label>
+                <input class="form-control" @bind="formModel.Name" />
+            </div>
+            <div class="mb-2">
+                <label class="form-label">Docker Image</label>
+                <input class="form-control" @bind="formModel.DockerImage" />
+            </div>
+            <div class="mb-2">
+                <label class="form-label">Description</label>
+                <input class="form-control" @bind="formModel.Description" />
+            </div>
+            <div class="mb-2 form-check">
+                <input class="form-check-input" type="checkbox" @bind="formModel.IsEnabled" id="isEnabled" />
+                <label class="form-check-label" for="isEnabled">Enabled</label>
+            </div>
+            <button class="btn btn-success me-2" @onclick="SaveServer">Save</button>
+            <button class="btn btn-secondary" @onclick="CancelForm">Cancel</button>
+        </div>
+    </div>
+}
+
+@if (servers == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr><th>Name</th><th>Docker Image</th><th>Description</th><th>Enabled</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var server in servers)
+            {
+                <tr>
+                    <td>@server.Name</td>
+                    <td><code>@server.DockerImage</code></td>
+                    <td>@server.Description</td>
+                    <td>@(server.IsEnabled ? "✅" : "❌")</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => EditServer(server)">Edit</button>
+                        <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteServer(server.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<AvailableMcpServerDto>? servers;
+    private bool showForm = false;
+    private string? editId = null;
+    private AvailableMcpServerDto formModel = new();
+
+    protected override async Task OnInitializedAsync() =>
+        servers = await McpServerService.GetAllAsync();
+
+    private void ShowAddForm() { editId = null; formModel = new(); showForm = true; }
+
+    private void EditServer(AvailableMcpServerDto s)
+    {
+        editId = s.Id;
+        formModel = new AvailableMcpServerDto { Id = s.Id, Name = s.Name, DockerImage = s.DockerImage, Description = s.Description, IsEnabled = s.IsEnabled };
+        showForm = true;
+    }
+
+    private void CancelForm() { showForm = false; formModel = new(); editId = null; }
+
+    private async Task SaveServer()
+    {
+        if (editId == null)
+            await McpServerService.CreateAsync(formModel);
+        else
+            await McpServerService.UpdateAsync(editId, formModel);
+        servers = await McpServerService.GetAllAsync();
+        showForm = false;
+        formModel = new();
+        editId = null;
+    }
+
+    private async Task DeleteServer(string id)
+    {
+        await McpServerService.DeleteAsync(id);
+        servers = await McpServerService.GetAllAsync();
+    }
+}

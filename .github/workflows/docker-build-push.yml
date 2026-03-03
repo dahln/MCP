@@ -29,7 +29,7 @@ jobs:
       matrix:
         include:
           - name: portal-luna
-            dockerfile: Portal.LUNA.API/Dockerfile
+            dockerfile: Portal.LUNA/Dockerfile
           - name: ping-mcp-luna
             dockerfile: Ping.MCP.LUNA/Dockerfile
           - name: dev-mcp-luna
