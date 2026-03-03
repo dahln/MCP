@@ -5,7 +5,6 @@ EXPOSE 8080
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY ["Dev.MCP.LUNA/Dev.MCP.LUNA.csproj", "Dev.MCP.LUNA/"]
-COPY ["Portal.LUNA.Dto/Portal.LUNA.Dto.csproj", "Portal.LUNA.Dto/"]
 RUN dotnet restore "Dev.MCP.LUNA/Dev.MCP.LUNA.csproj"
 COPY . .
 WORKDIR "/src/Dev.MCP.LUNA"

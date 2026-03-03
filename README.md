@@ -6,15 +6,13 @@ LUNA is a system for managing MCP (Model Context Protocol) servers and their ava
 
 | Project | Type | Description |
 |---------|------|-------------|
-| `Portal.LUNA.API` | .NET 10 Web API | Main portal — auth, admin, user management, sandbox orchestration |
-| `Portal.LUNA.App` | Blazor WASM | Frontend SPA hosted by the API |
-| `Portal.LUNA.Database` | Class Library | EF Core entities and DbContext (SQLite) |
-| `Portal.LUNA.Service` | Class Library | Business logic and Docker orchestration |
-| `Portal.LUNA.Dto` | Class Library | Shared data transfer objects |
+| `Portal.LUNA` | .NET 10 Web API + Blazor | Main portal — auth, admin, user management, container orchestration, and Blazor UI |
 | `Dev.MCP.LUNA` | .NET 10 Web API | MCP server for development tools (GitHub, sandbox, build/run) |
 | `Ping.MCP.LUNA` | .NET 10 Web API | MCP server for network connectivity testing (ping) |
 
 ## Quick Start
+
+### Docker (recommended)
 
 ```bash
 cd LUNA
@@ -22,6 +20,33 @@ docker compose up --build
 ```
 
 Access the portal at `http://localhost:5000`. The first registered user becomes admin.
+
+### Local Development
+
+```bash
+cd LUNA
+dotnet run --project Portal.LUNA
+```
+
+Run an MCP server locally:
+
+```bash
+dotnet run --project Ping.MCP.LUNA
+dotnet run --project Dev.MCP.LUNA
+```
+
+### Database Migrations
+
+```bash
+# Install EF Core tools (if not already installed)
+dotnet tool install -g dotnet-ef
+
+# Add a new migration
+dotnet ef migrations add <MigrationName> --project Portal.LUNA --startup-project Portal.LUNA
+
+# Apply migrations
+dotnet ef database update --project Portal.LUNA --startup-project Portal.LUNA
+```
 
 ## MCP Server Addresses
 
@@ -42,8 +67,8 @@ The `ROOT_DOMAIN` is configurable in the Portal admin settings page.
 Client (AI Agent)
     │  Authorization: Bearer {apiKey}
     ▼
-Portal.LUNA.API  ─── SQLite DB
-    │              (manages containers via Docker socket)
+Portal.LUNA  ─── SQLite DB
+    │           (manages containers via Docker socket)
     ├── /mcp/ping ──► Ping.MCP.LUNA container
     └── /mcp/dev  ──► Dev.MCP.LUNA container
                            │
@@ -51,13 +76,17 @@ Portal.LUNA.API  ─── SQLite DB
                     (ghcr.io/dahln/lunasandbox)
 ```
 
+## Docker Container Management from the UI
+
+Yes — Portal.LUNA mounts the Docker socket (`/var/run/docker.sock`) and uses the Docker API to start, stop, and remove containers directly. Admins can manage MCP server containers from the portal UI without leaving the browser.
+
 ## Auth Flow
 
-1. User registers at Portal.LUNA.App.
+1. User registers at Portal.LUNA.
 2. User generates an API key for an MCP server in the portal.
 3. User configures their AI client with the MCP server URL and API key.
 4. AI client sends `Authorization: Bearer {apiKey}` to the MCP server.
-5. MCP server validates the key against Portal.LUNA.API.
+5. MCP server validates the key against Portal.LUNA.
 
 ---
 
@@ -77,7 +106,7 @@ Use the following template as a starting point when creating a new MCP server:
 **Requirements:**
 
 1. Accept `Authorization: Bearer {apiKey}` header on all requests.
-2. Validate the API key by calling Portal.LUNA.API:
+2. Validate the API key by calling Portal.LUNA:
    ```
    GET {PORTAL_URL}/api/api-keys/validate?apiKey={apiKey}
    ```
@@ -90,7 +119,7 @@ Use the following template as a starting point when creating a new MCP server:
        .WithTools<MyTools>();
    app.MapMcp("/mcp/{MCP_SERVER_NAME}");
    ```
-5. For sandbox operations, call Portal.LUNA.API:
+5. For sandbox operations, call Portal.LUNA:
    - Create: `POST {PORTAL_URL}/api/sandboxes` with `{ "apiKey": "..." }`
    - Destroy: `DELETE {PORTAL_URL}/api/sandboxes/{sandboxId}` with `X-API-Key: ...` header
 
@@ -162,4 +191,4 @@ ENTRYPOINT ["dotnet", "MyServer.MCP.LUNA.dll"]
 ```
 
 **Required environment variables:**
-- `PortalUrl`: URL of Portal.LUNA.API (e.g. `http://portal-luna:8080`)
+- `PortalUrl`: URL of Portal.LUNA (e.g. `http://portal-luna:8080`)

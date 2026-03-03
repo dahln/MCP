@@ -11,8 +11,5 @@
     <PackageReference Include="ModelContextProtocol.AspNetCore" Version="1.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Portal.LUNA.Dto\Portal.LUNA.Dto.csproj" />
-  </ItemGroup>
 
 </Project>

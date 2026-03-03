@@ -1,5 +1,3 @@
-using Portal.LUNA.Dto;
-
 namespace Dev.MCP.LUNA;
 
 public interface IPortalClient
