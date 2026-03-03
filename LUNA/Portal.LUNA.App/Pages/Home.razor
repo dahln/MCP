@@ -1,0 +1,23 @@
+@page "/"
+@attribute [AllowAnonymous]
+
+<PageTitle>LUNA Portal</PageTitle>
+
+<div class="row mt-5">
+    <div class="col-md-8 offset-md-2 text-center">
+        <i class="bi bi-moon-stars-fill" style="font-size: 5rem; color: mediumpurple;"></i>
+        <h1 class="mt-3">LUNA</h1>
+        <p class="lead text-muted">Local Universal Neural Assistant</p>
+        <p>Manage MCP servers and AI tools in one place. Create an account to get started.</p>
+        <AuthorizeView>
+            <NotAuthorized>
+                <a href="login" class="btn btn-primary me-2">Sign In</a>
+                <a href="register" class="btn btn-outline-primary">Register</a>
+            </NotAuthorized>
+            <Authorized>
+                <a href="servers" class="btn btn-primary me-2">View MCP Servers</a>
+                <a href="my-keys" class="btn btn-outline-primary">My API Keys</a>
+            </Authorized>
+        </AuthorizeView>
+    </div>
+</div>

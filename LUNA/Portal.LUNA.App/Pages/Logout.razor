@@ -1,0 +1,11 @@
+@page "/logout"
+@inject Portal.LUNA.App.Services.AuthenticationManager AuthManager
+@inject NavigationManager Navigation
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthManager.LogoutAsync();
+        Navigation.NavigateTo("/login");
+    }
+}

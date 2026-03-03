@@ -1,0 +1,215 @@
+@attribute [Authorize]
+@page "/my-keys"
+@inject Portal.LUNA.App.Services.API API
+@inject IJSRuntime JS
+@inject IModalService _modalService
+
+<PageTitle>My API Keys - LUNA</PageTitle>
+
+<div class="row mt-3">
+    <div class="col-md-12">
+        <h3>My API Keys</h3>
+        <p class="text-muted">Manage your MCP server API keys and configuration values.</p>
+        <hr />
+    </div>
+</div>
+
+@if (_apiKeys.Count == 0)
+{
+    <div class="alert alert-info">
+        You don't have any API keys yet. <a href="servers">Browse available servers</a> to get started.
+    </div>
+}
+else
+{
+    @foreach (var key in _apiKeys)
+    {
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-server me-2 text-primary"></i>@key.ServerName</h5>
+                <button class="btn btn-danger btn-sm" @onclick="() => DeleteKey(key)">
+                    <i class="bi bi-trash me-1"></i>Delete Key
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="row mb-2">
+                    <div class="col-md-12">
+                        <label class="form-label fw-bold">API Key</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control font-monospace" value="@key.ApiKey" readonly />
+                            <button class="btn btn-outline-secondary" @onclick="() => CopyToClipboard(key.ApiKey)">
+                                <i class="bi bi-clipboard"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(key.McpServerAddress))
+                {
+                    <div class="row mb-2">
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">MCP Server Address</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control font-monospace" value="@key.McpServerAddress" readonly />
+                                <button class="btn btn-outline-secondary" @onclick="() => CopyToClipboard(key.McpServerAddress!)">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">Use this address in your MCP client configuration.</small>
+                        </div>
+                    </div>
+                }
+
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <h6>Configuration Values (Key-Value Pairs)</h6>
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Key</th>
+                                    <th>Value</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var kvp in key.KeyValuePairs)
+                                {
+                                    <tr>
+                                        @if (_editingKvpId == kvp.Id)
+                                        {
+                                            <td><input type="text" class="form-control form-control-sm" @bind="_editKey" /></td>
+                                            <td><input type="text" class="form-control form-control-sm" @bind="_editValue" /></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-success me-1" @onclick="() => SaveKvp(key.Id, kvp.Id)">
+                                                    <i class="bi bi-check"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-secondary" @onclick="CancelEditKvp">
+                                                    <i class="bi bi-x"></i>
+                                                </button>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td>@kvp.Key</td>
+                                            <td>@kvp.Value</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => StartEditKvp(kvp)">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" @onclick="() => DeleteKvp(key.Id, kvp)">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                                @if (_addingKvpForKeyId == key.Id)
+                                {
+                                    <tr>
+                                        <td><input type="text" class="form-control form-control-sm" @bind="_newKey" placeholder="Key" /></td>
+                                        <td><input type="text" class="form-control form-control-sm" @bind="_newValue" placeholder="Value" /></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-success me-1" @onclick="() => AddKvp(key.Id)">
+                                                <i class="bi bi-check"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-secondary" @onclick="() => _addingKvpForKeyId = null">
+                                                <i class="bi bi-x"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        <button class="btn btn-outline-primary btn-sm" @onclick="() => StartAddKvp(key.Id)">
+                            <i class="bi bi-plus me-1"></i>Add Value
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    private List<UserApiKey> _apiKeys = new();
+    private string? _addingKvpForKeyId;
+    private string _newKey = string.Empty;
+    private string _newValue = string.Empty;
+    private string? _editingKvpId;
+    private string _editKey = string.Empty;
+    private string _editValue = string.Empty;
+
+    protected override async Task OnInitializedAsync() => await LoadKeys();
+
+    private async Task LoadKeys()
+    {
+        var result = await API.GetAsync<List<UserApiKey>>("api/v1/apikeys");
+        _apiKeys = result ?? new();
+    }
+
+    private async Task CopyToClipboard(string text)
+    {
+        await JS.InvokeVoidAsync("copyToClipboard", text);
+    }
+
+    private async Task DeleteKey(UserApiKey key)
+    {
+        var modal = _modalService.Show<ConfirmDialog>($"Delete API key for '{key.ServerName}'?");
+        var result = await modal.Result;
+        if (!result.Cancelled)
+        {
+            if (await API.DeleteAsync($"api/v1/apikeys/{key.Id}"))
+                _apiKeys.Remove(key);
+        }
+    }
+
+    private void StartAddKvp(string keyId)
+    {
+        _addingKvpForKeyId = keyId;
+        _newKey = string.Empty;
+        _newValue = string.Empty;
+    }
+
+    private async Task AddKvp(string keyId)
+    {
+        if (string.IsNullOrEmpty(_newKey) || string.IsNullOrEmpty(_newValue)) return;
+        var model = new ApiKeyKvp { Key = _newKey, Value = _newValue };
+        var result = await API.PostAsync<ApiKeyKvp>($"api/v1/apikeys/{keyId}/kvp", model);
+        if (result != null)
+        {
+            var k = _apiKeys.FirstOrDefault(k => k.Id == keyId);
+            k?.KeyValuePairs.Add(result);
+            _addingKvpForKeyId = null;
+        }
+    }
+
+    private void StartEditKvp(ApiKeyKvp kvp)
+    {
+        _editingKvpId = kvp.Id;
+        _editKey = kvp.Key;
+        _editValue = kvp.Value;
+    }
+
+    private async Task SaveKvp(string keyId, string kvpId)
+    {
+        var model = new ApiKeyKvp { Key = _editKey, Value = _editValue };
+        if (await API.PutAsync($"api/v1/apikeys/{keyId}/kvp/{kvpId}", model))
+        {
+            var k = _apiKeys.FirstOrDefault(k => k.Id == keyId);
+            var kvp = k?.KeyValuePairs.FirstOrDefault(v => v.Id == kvpId);
+            if (kvp != null) { kvp.Key = _editKey; kvp.Value = _editValue; }
+            _editingKvpId = null;
+        }
+    }
+
+    private void CancelEditKvp() => _editingKvpId = null;
+
+    private async Task DeleteKvp(string keyId, ApiKeyKvp kvp)
+    {
+        if (await API.DeleteAsync($"api/v1/apikeys/{keyId}/kvp/{kvp.Id}"))
+        {
+            var k = _apiKeys.FirstOrDefault(k => k.Id == keyId);
+            k?.KeyValuePairs.Remove(kvp);
+        }
+    }
+}
