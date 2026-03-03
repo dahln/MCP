@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Portal.LUNA.Dto")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+dfefd4f9c28fa13ae43054d91edf570edbe5e12b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c8828dc889eede75ad3bdd0e44ad8bac29a5fa53")]
 [assembly: System.Reflection.AssemblyProductAttribute("Portal.LUNA.Dto")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Portal.LUNA.Dto")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

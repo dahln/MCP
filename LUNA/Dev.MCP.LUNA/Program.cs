@@ -1,41 +1,62 @@
+using Dev.MCP.LUNA;
+using ModelContextProtocol.Server;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddHttpClient("portal", client =>
+{
+    var portalUrl = builder.Configuration["PortalUrl"] ?? "http://localhost:5000";
+    client.BaseAddress = new Uri(portalUrl);
+});
+
+builder.Services.AddScoped<IPortalClient, PortalClient>();
+
+builder.Services.AddMcpServer()
+    .WithHttpTransport()
+    .WithTools<SandboxTools>()
+    .WithTools<GitHubTools>()
+    .WithTools<DotnetTools>()
+    .WithTools<PythonTools>()
+    .WithTools<NodeTools>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+// API key middleware - validates Bearer token against Portal.LUNA
+app.Use(async (context, next) =>
 {
-    app.MapOpenApi();
-}
+    // Skip health check
+    if (context.Request.Path.StartsWithSegments("/health"))
+    {
+        await next();
+        return;
+    }
 
-app.UseHttpsRedirection();
+    if (!context.Request.Headers.TryGetValue("Authorization", out var authHeader))
+    {
+        context.Response.StatusCode = 401;
+        await context.Response.WriteAsync("Missing Authorization header.");
+        return;
+    }
+    var token = authHeader.ToString();
+    if (token.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        token = token["Bearer ".Length..].Trim();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    var factory = context.RequestServices.GetRequiredService<IHttpClientFactory>();
+    var portalClient = factory.CreateClient("portal");
+    var response = await portalClient.GetAsync($"/api/api-keys/validate?apiKey={Uri.EscapeDataString(token)}");
+    if (!response.IsSuccessStatusCode)
+    {
+        context.Response.StatusCode = 401;
+        await context.Response.WriteAsync("Invalid API key.");
+        return;
+    }
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+    // Store API key in HttpContext for tools
+    context.Items["ApiKey"] = token;
+    await next();
+});
+
+app.MapGet("/health", () => "OK");
+app.MapMcp("/mcp/dev");
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

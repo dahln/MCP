@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Ping.MCP.LUNA")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+dfefd4f9c28fa13ae43054d91edf570edbe5e12b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9a5b227ef9cbdf800028a022a243594499e59401")]
 [assembly: System.Reflection.AssemblyProductAttribute("Ping.MCP.LUNA")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Ping.MCP.LUNA")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
