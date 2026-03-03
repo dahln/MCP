@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="Dev.MCP.LUNA/Dev.MCP.LUNA.csproj" />
+  <Project Path="Ping.MCP.LUNA/Ping.MCP.LUNA.csproj" />
+  <Project Path="Portal.LUNA.API/Portal.LUNA.API.csproj" />
+  <Project Path="Portal.LUNA.App/Portal.LUNA.App.csproj" />
+  <Project Path="Portal.LUNA.Database/Portal.LUNA.Database.csproj" />
+  <Project Path="Portal.LUNA.Dto/Portal.LUNA.Dto.csproj" />
+  <Project Path="Portal.LUNA.Service/Portal.LUNA.Service.csproj" />
+</Solution>

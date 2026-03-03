@@ -1,0 +1,6 @@
+@Ping.MCP.LUNA_HostAddress = http://localhost:5159
+
+GET {{Ping.MCP.LUNA_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

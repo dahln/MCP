@@ -1,0 +1,16 @@
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Database/bin/Debug/net10.0/Portal.LUNA.Database.deps.json
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Database/bin/Debug/net10.0/Portal.LUNA.Database.dll
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Database/bin/Debug/net10.0/Portal.LUNA.Database.pdb
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Database/bin/Debug/net10.0/Portal.LUNA.Dto.dll
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Database/bin/Debug/net10.0/Portal.LUNA.Dto.pdb
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Database/obj/Debug/net10.0/Portal.LUNA.Database.csproj.AssemblyReference.cache
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Database/obj/Debug/net10.0/Portal.LUNA.Database.GeneratedMSBuildEditorConfig.editorconfig
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Database/obj/Debug/net10.0/Portal.LUNA.Database.AssemblyInfoInputs.cache
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Database/obj/Debug/net10.0/Portal.LUNA.Database.AssemblyInfo.cs
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Database/obj/Debug/net10.0/Portal.LUNA.Database.csproj.CoreCompileInputs.cache
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Database/obj/Debug/net10.0/Portal.LUNA.Database.sourcelink.json
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Database/obj/Debug/net10.0/Portal.L.370DF294.Up2Date
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Database/obj/Debug/net10.0/Portal.LUNA.Database.dll
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Database/obj/Debug/net10.0/refint/Portal.LUNA.Database.dll
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Database/obj/Debug/net10.0/Portal.LUNA.Database.pdb
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Database/obj/Debug/net10.0/ref/Portal.LUNA.Database.dll

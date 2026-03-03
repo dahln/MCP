@@ -1,0 +1,12 @@
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Dto/bin/Debug/net10.0/Portal.LUNA.Dto.deps.json
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Dto/bin/Debug/net10.0/Portal.LUNA.Dto.dll
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Dto/bin/Debug/net10.0/Portal.LUNA.Dto.pdb
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Dto/obj/Debug/net10.0/Portal.LUNA.Dto.GeneratedMSBuildEditorConfig.editorconfig
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Dto/obj/Debug/net10.0/Portal.LUNA.Dto.AssemblyInfoInputs.cache
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Dto/obj/Debug/net10.0/Portal.LUNA.Dto.AssemblyInfo.cs
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Dto/obj/Debug/net10.0/Portal.LUNA.Dto.csproj.CoreCompileInputs.cache
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Dto/obj/Debug/net10.0/Portal.LUNA.Dto.sourcelink.json
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Dto/obj/Debug/net10.0/Portal.LUNA.Dto.dll
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Dto/obj/Debug/net10.0/refint/Portal.LUNA.Dto.dll
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Dto/obj/Debug/net10.0/Portal.LUNA.Dto.pdb
+/home/runner/work/MCP/MCP/LUNA/Portal.LUNA.Dto/obj/Debug/net10.0/ref/Portal.LUNA.Dto.dll
