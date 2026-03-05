@@ -10,6 +10,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     }
 
     public DbSet<AvailableMcpServer> AvailableMcpServers { get; set; }
+    public DbSet<McpServerInstance> McpServerInstances { get; set; }
     public DbSet<UserApiKey> UserApiKeys { get; set; }
     public DbSet<UserApiKeySetting> UserApiKeySettings { get; set; }
     public DbSet<Sandbox> Sandboxes { get; set; }
@@ -23,6 +24,15 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         {
             e.HasKey(x => x.Id);
             e.HasIndex(x => x.Name).IsUnique();
+        });
+
+        builder.Entity<McpServerInstance>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.HasOne(x => x.AvailableMcpServer)
+             .WithMany(m => m.Instances)
+             .HasForeignKey(x => x.AvailableMcpServerId)
+             .OnDelete(DeleteBehavior.Cascade);
         });
 
         builder.Entity<UserApiKey>(e =>

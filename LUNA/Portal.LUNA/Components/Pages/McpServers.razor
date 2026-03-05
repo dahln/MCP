@@ -1,4 +1,5 @@
 @page "/mcp-servers"
+@rendermode InteractiveServer
 @using Microsoft.AspNetCore.Authorization
 @using Portal.LUNA.Models
 @using Portal.LUNA.Services
@@ -41,12 +42,44 @@ else
                                 <input type="text" class="form-control form-control-sm" readonly value="@myKey.ApiKey" />
                                 <button class="btn btn-outline-secondary btn-sm" @onclick="() => CopyText(myKey.ApiKey)">Copy Key</button>
                             </div>
-                            @if (!string.IsNullOrEmpty(mcpUrl))
+                            @if (server.RunningInstances.Any())
                             {
-                                var serverUrl = $"{mcpUrl}/mcp/{server.Name}";
+                                var instance = server.RunningInstances.First();
+                                var serverUrl = $"http://localhost:{instance.Port}/mcp";
                                 <div class="input-group mb-2">
                                     <input type="text" class="form-control form-control-sm" readonly value="@serverUrl" />
                                     <button class="btn btn-outline-secondary btn-sm" @onclick="() => CopyText(serverUrl)">Copy URL</button>
+                                </div>
+                                <div class="mb-2">
+                                    <button class="btn btn-sm btn-outline-info" @onclick="() => ToggleSetupInstructions(myKey.Id)">
+                                        @(expandedSetupInstructions.ContainsKey(myKey.Id) && expandedSetupInstructions[myKey.Id] ? "▼" : "▶") 📖 VS Code Setup Instructions
+                                    </button>
+                                    @if (expandedSetupInstructions.ContainsKey(myKey.Id) && expandedSetupInstructions[myKey.Id])
+                                    {
+                                        <div class="card card-body bg-light mt-2">
+                                            <h6>Configure MCP Server in VS Code</h6>
+                                            <ol style="font-size: 0.9rem;">
+                                                <li>Open VS Code settings: <code>Ctrl+,</code> (Windows/Linux) or <code>Cmd+,</code> (Mac)</li>
+                                                <li>Search for <strong>"MCP"</strong> or edit settings JSON directly</li>
+                                                <li>Locate the <code>"mcpServers"</code> configuration object</li>
+                                                <li>Add your server configuration with these values:
+                                                    <div style="margin-top: 0.5rem; font-family: monospace; font-size: 0.85rem;">
+                                                        <strong>Server Name:</strong> @server.Name<br/>
+                                                        <strong>URL:</strong> @serverUrl<br/>
+                                                        <strong>API Key:</strong> @myKey.ApiKey.Substring(0, 8)...
+                                                    </div>
+                                                </li>
+                                                <li>Refer to your MCP client documentation for the exact JSON format</li>
+                                                <li>Restart VS Code after saving</li>
+                                            </ol>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-warning alert-sm mb-2">
+                                    <small>Server not running. Ask an admin to start it on the admin panel.</small>
                                 </div>
                             }
                             <div class="mb-2">
@@ -92,6 +125,7 @@ else
     private string newSettingKey = string.Empty;
     private string newSettingValue = string.Empty;
     private string currentUserId = string.Empty;
+    private Dictionary<string, bool> expandedSetupInstructions = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -141,5 +175,17 @@ else
     {
         await JS.InvokeVoidAsync("navigator.clipboard.writeText", text);
         message = "Copied to clipboard!";
+    }
+
+    private void ToggleSetupInstructions(string keyId)
+    {
+        if (expandedSetupInstructions.ContainsKey(keyId))
+        {
+            expandedSetupInstructions[keyId] = !expandedSetupInstructions[keyId];
+        }
+        else
+        {
+            expandedSetupInstructions[keyId] = true;
+        }
     }
 }

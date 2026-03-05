@@ -8,12 +8,18 @@ on:
     paths:
       - "LUNA/**/Dockerfile"
       - "LUNA/docker-compose.yml"
+      - "LUNA/Dev.MCP.LUNA/**"
+      - "LUNA/Ping.MCP.LUNA/**"
+      - "LUNA/Portal.LUNA/**"
   pull_request:
     branches:
       - master
     paths:
       - "LUNA/**/Dockerfile"
       - "LUNA/docker-compose.yml"
+      - "LUNA/Dev.MCP.LUNA/**"
+      - "LUNA/Ping.MCP.LUNA/**"
+      - "LUNA/Portal.LUNA/**"
 
 env:
   REGISTRY: ghcr.io

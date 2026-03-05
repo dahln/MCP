@@ -57,6 +57,6 @@ app.Use(async (context, next) =>
 });
 
 app.MapGet("/health", () => "OK");
-app.MapMcp("/mcp/dev");
+app.MapMcp("/mcp");
 
 app.Run();

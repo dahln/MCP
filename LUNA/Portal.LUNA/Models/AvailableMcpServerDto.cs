@@ -7,4 +7,5 @@ public class AvailableMcpServerDto
     public string DockerImage { get; set; } = string.Empty;
     public string? Description { get; set; }
     public bool IsEnabled { get; set; }
+    public List<McpServerInstanceDto> RunningInstances { get; set; } = new();
 }

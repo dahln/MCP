@@ -43,7 +43,7 @@ app.Use(async (context, next) =>
     await next();
 });
 
-app.MapMcp("/mcp/ping");
+app.MapMcp("/mcp");
 
 app.Run();
 

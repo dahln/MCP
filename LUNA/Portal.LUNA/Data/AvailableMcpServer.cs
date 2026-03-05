@@ -8,4 +8,5 @@ public class AvailableMcpServer
     public string? Description { get; set; }
     public bool IsEnabled { get; set; } = true;
     public ICollection<UserApiKey> UserApiKeys { get; set; } = new List<UserApiKey>();
+    public ICollection<McpServerInstance> Instances { get; set; } = new List<McpServerInstance>();
 }
