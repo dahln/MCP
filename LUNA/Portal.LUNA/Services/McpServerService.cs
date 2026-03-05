@@ -129,6 +129,11 @@ public class McpServerService : IMcpServerService
             var response = await _docker.Containers.CreateContainerAsync(new CreateContainerParameters
             {
                 Image = server.DockerImage,
+                Env = new List<string>
+                {
+                    "PortalUrl=http://host.docker.internal:5000",
+                    "ASPNETCORE_ENVIRONMENT=Production"
+                },
                 HostConfig = new HostConfig
                 {
                     PortBindings = new Dictionary<string, IList<PortBinding>>

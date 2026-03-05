@@ -31,6 +31,20 @@ app.Use(async (context, next) =>
         return;
     }
 
+    // Allow initialize request without auth (MCP protocol requirement)
+    if (context.Request.Path.StartsWithSegments("/mcp") && context.Request.Method == "POST")
+    {
+        context.Request.EnableBuffering();
+        var body = await new StreamReader(context.Request.Body).ReadToEndAsync();
+        context.Request.Body.Position = 0;
+        
+        if (body.Contains("\"method\":\"initialize\""))
+        {
+            await next();
+            return;
+        }
+    }
+
     if (!context.Request.Headers.TryGetValue("Authorization", out var authHeader))
     {
         context.Response.StatusCode = 401;
